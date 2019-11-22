@@ -115,6 +115,49 @@ function addr_search()
  xmlhttp.send();
 }
 
+ var map = L.map('map', {
+            center: [16.02064310, 120.23060710],
+            zoom: 8
+        });
+
+       L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {attribution: 'OSM'}).addTo(map);
+       
+       function chooseAddr(lat1, lng1){
+            map.setView([lat1, lng1], 13);
+            L.marker([lat1, lng1]).addTo(map).bindPopup("It's here");
+        }
+        
+        function locate(address){
+            
+            var xmlhttp = new XMLHttpRequest();
+            var url = "https://nominatim.openstreetmap.org/search?format=json&limit=3&q=" + address;
+            xmlhttp.onreadystatechange = function(){
+                if (this.readyState == 4 && this.status == 200){
+                    var res = JSON.parse(this.responseText);
+                    // console.log(res);
+                    renderAddress(res[0]);
+                }
+            };
+            
+            xmlhttp.open("GET", url, true);
+            xmlhttp.send();
+        }
+    
+        function renderAddress(data){
+            let b = document.createElement("button");
+            b.type = "hidden"; b.id = "showMapBtn";
+            document.body.appendChild(b);
+            $("#showMapBtn").click(function(){
+                console.log(data);
+                chooseAddr(data.lat, data.lon);
+            }).click();
+        }
+    
+        $(document).ready(function(){
+           locate("<?php echo $hatchery['location']; ?>"); 
+        });
+ 
+ 
 </script>
 
 </body>
